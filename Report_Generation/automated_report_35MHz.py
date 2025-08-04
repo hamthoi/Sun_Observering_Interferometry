@@ -79,7 +79,7 @@ def plot_histogram(data_matrix, Frequency, time_list, date, output_folder):
     fig.savefig(os.path.join(output_folder, f"histogram_{date}.png"), dpi=600, bbox_inches='tight')
     plt.close()
 
-def generate_daily_pngs(data_folder, avg_power_dir, histogram_dirs):
+def generate_daily_pngs(data_folder, avg_power_dir, histogram_dir):
     folder = os.path.basename(data_folder)
     parent_path = os.path.dirname(data_folder)
     file_list, Frequency, timeStamp_list, timeString_list, number_file = get_folder_file_list(parent_path, folder)
@@ -95,7 +95,7 @@ def generate_daily_pngs(data_folder, avg_power_dir, histogram_dirs):
         data_matrix[i, :] = remove_spike(data_matrix[i, :], threshold=3, window_size=11)
     date_str = folder
     plot_graph(timeString_list, power_list, date_str, avg_power_dir)
-    plot_histogram(data_matrix, Frequency, timeString_list, date_str, histogram_dirs)
+    plot_histogram(data_matrix, Frequency, timeString_list, date_str, histogram_dir)
     print(f"Processed folder: {folder}")
 
 def main():
