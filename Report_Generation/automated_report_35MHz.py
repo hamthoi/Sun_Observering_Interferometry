@@ -1,9 +1,8 @@
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as dt
 import os
-import tkinter as tk
-from tkinter import filedialog
 
 def get_folder_file_list(path, folder):
     _file_list = os.listdir(os.path.join(path, folder))
@@ -80,18 +79,7 @@ def plot_histogram(data_matrix, Frequency, time_list, date, output_folder):
     fig.savefig(os.path.join(output_folder, f"histogram_{date}.png"), dpi=600, bbox_inches='tight')
     plt.close()
 
-def main():
-    root = tk.Tk()
-    root.withdraw()
-    data_folder = filedialog.askdirectory(title="Select the daily data folder (YYYY_MM_DD)")
-    if not data_folder:
-        print("No data folder selected. Exiting.")
-        return
-    output_folder = filedialog.askdirectory(title="Select the output folder for PNGs")
-    if not output_folder:
-        print("No output folder selected. Exiting.")
-        return
-
+def generate_daily_pngs(data_folder, avg_power_dir, histogram_dirs):
     folder = os.path.basename(data_folder)
     parent_path = os.path.dirname(data_folder)
     file_list, Frequency, timeStamp_list, timeString_list, number_file = get_folder_file_list(parent_path, folder)
@@ -106,9 +94,37 @@ def main():
     for i in range(data_matrix.shape[0]):
         data_matrix[i, :] = remove_spike(data_matrix[i, :], threshold=3, window_size=11)
     date_str = folder
-    plot_graph(timeString_list, power_list, date_str, output_folder)
-    plot_histogram(data_matrix, Frequency, timeString_list, date_str, output_folder)
+    plot_graph(timeString_list, power_list, date_str, avg_power_dir)
+    plot_histogram(data_matrix, Frequency, timeString_list, date_str, histogram_dirs)
     print(f"Processed folder: {folder}")
+
+def main():
+    # Get yesterday's date
+    yesterday = dt.datetime.now() - dt.timedelta(days=1)
+    folder_name = yesterday.strftime("%Y_%m_%d")
+    data_folder = f"/home/radio/Desktop/Dlite/{folder_name}"
+    output_folder = "/home/radio/Desktop/Data Plots"
+
+    avg_power_dir = os.path.join(output_folder, "avg_power")
+    histogram_dir = os.path.join(output_folder, "histogram")
+    os.makedirs(avg_power_dir, exist_ok=True)
+    os.makedirs(histogram_dir, exist_ok=True)
+
+    avg_power_path = os.path.join(avg_power_dir, f'avg_power_{folder_name}.png')
+    histogram_path = os.path.join(histogram_dir, f'histogram_{folder_name}.png')
+    
+    # Check if both plots already exist
+    if os.path.isfile(avg_power_path) and os.path.isfile(histogram_path):
+        print("Plots already exist for yesterday. Exiting.")
+        sys.exit(0)
+
+    if not os.path.isdir(data_folder):
+        print(f"Data folder {data_folder} does not exist. Exiting.")
+        sys.exit(1)
+
+    # Pass both subdirectories to the plotting function
+    generate_daily_pngs(data_folder, avg_power_dir, histogram_dir)
+    print("Plots generated successfully.")
 
 if __name__ == "__main__":
     main()
