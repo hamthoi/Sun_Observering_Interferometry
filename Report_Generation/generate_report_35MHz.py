@@ -66,7 +66,7 @@ def plot_graph(time_list, power_list, date, output_folder):
     fig.savefig(os.path.join(output_folder, f"avg_power_{date}.png"), dpi=600, bbox_inches='tight')
     plt.close()
 
-def plot_histogram(data_matrix, Frequency, time_list, date, output_folder):
+def plot_spectrogram(data_matrix, Frequency, time_list, date, output_folder):
     fig, ax = plt.subplots(1, 1, figsize=[24, 8])
     ax.set(ylabel='Signal (dB)')
     ax.imshow(data_matrix, cmap='inferno', interpolation='nearest', aspect='auto', origin='lower')
@@ -77,7 +77,7 @@ def plot_histogram(data_matrix, Frequency, time_list, date, output_folder):
     x = np.arange(len(time_list))
     ax.set_xticks(x[::step_x])
     ax.set_xticklabels(time_list[::step_x], rotation=45, ha='right')
-    fig.savefig(os.path.join(output_folder, f"histogram_{date}.png"), dpi=600, bbox_inches='tight')
+    fig.savefig(os.path.join(output_folder, f"spectrogram_{date}.png"), dpi=600, bbox_inches='tight')
     plt.close()
 
 def main():
@@ -107,7 +107,7 @@ def main():
         data_matrix[i, :] = remove_spike(data_matrix[i, :], threshold=3, window_size=11)
     date_str = folder
     plot_graph(timeString_list, power_list, date_str, output_folder)
-    plot_histogram(data_matrix, Frequency, timeString_list, date_str, output_folder)
+    plot_spectrogram(data_matrix, Frequency, timeString_list, date_str, output_folder)
     print(f"Processed folder: {folder}")
 
 if __name__ == "__main__":
